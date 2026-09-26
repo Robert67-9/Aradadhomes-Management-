@@ -378,7 +378,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 <span>International Privacy Standards & Compliance</span>
               </div>
               <p className="text-zinc-600 leading-relaxed">
-                HavenStay complies with the European Union General Data Protection Regulation (GDPR), California Consumer Privacy Act (CCPA/CPRA), and international privacy frameworks. You maintain full ownership over your personal telemetry and transactional history.
+                Aradads Home complies with the European Union General Data Protection Regulation (GDPR), California Consumer Privacy Act (CCPA/CPRA), and international privacy frameworks. You maintain full ownership over your personal telemetry and transactional history.
               </p>
             </div>
 

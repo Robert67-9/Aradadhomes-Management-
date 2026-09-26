@@ -2,14 +2,14 @@ import { Apartment, Booking, Review, UserProfile, NotificationItem, OfflineActio
 import { INITIAL_APARTMENTS, INITIAL_REVIEWS } from '../data/apartments';
 
 const STORAGE_KEYS = {
-  APARTMENTS: 'havenstay_apartments_v1',
-  BOOKINGS: 'havenstay_bookings_v1',
-  REVIEWS: 'havenstay_reviews_v1',
-  PROFILE: 'havenstay_profile_v1',
-  NOTIFICATIONS: 'havenstay_notifications_v1',
-  OFFLINE_QUEUE: 'havenstay_offline_queue_v1',
-  ENCRYPTION_KEY: 'havenstay_enc_key_v1',
-  GDPR_CONSENTS: 'havenstay_gdpr_consents_v1',
+  APARTMENTS: 'aradads_apartments_v1',
+  BOOKINGS: 'aradads_bookings_v1',
+  REVIEWS: 'aradads_reviews_v1',
+  PROFILE: 'aradads_profile_v1',
+  NOTIFICATIONS: 'aradads_notifications_v1',
+  OFFLINE_QUEUE: 'aradads_offline_queue_v1',
+  ENCRYPTION_KEY: 'aradads_enc_key_v1',
+  GDPR_CONSENTS: 'aradads_gdpr_consents_v1',
 };
 
 export const CURRENCY_RATES: Record<Currency, { rate: number; symbol: string; label: string }> = {
@@ -246,16 +246,16 @@ export function getStoredProfile(): UserProfile {
         id: 'usr-guest-01',
         name: 'Robert Vance',
         email: 'dansorobert360@gmail.com',
-        phone: '+44 7700 900142',
+        phone: '+233 24 412 8901',
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&h=160&q=80',
-        bio: 'Global architectural enthusiast & frequent leisure traveler. Seeking calm, light-filled sanctuaries.',
-        preferredCurrency: 'USD',
+        bio: 'Architectural enthusiast & frequent leisure traveler exploring curated luxury residences in Ghana.',
+        preferredCurrency: 'GHS',
         language: 'en',
         notificationsEnabled: true,
         emailAlertsEnabled: true,
         pushAlertsEnabled: true,
         gdprConsentDate: '2026-09-01T10:00:00Z',
-        savedApartmentIds: ['apt-penthouse-mayfair', 'apt-coastal-villa'],
+        savedApartmentIds: ['apt-cantonments-accra', 'apt-airport-residential'],
       };
       localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(defaultProfile));
       return defaultProfile;
@@ -266,10 +266,10 @@ export function getStoredProfile(): UserProfile {
       id: 'usr-guest-01',
       name: 'Guest Traveler',
       email: 'dansorobert360@gmail.com',
-      phone: '+1 555-0199',
+      phone: '+233 24 412 8901',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&h=160&q=80',
       bio: '',
-      preferredCurrency: 'USD',
+      preferredCurrency: 'GHS',
       language: 'en',
       notificationsEnabled: true,
       emailAlertsEnabled: true,

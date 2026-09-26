@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Check,
   Sparkles,
+  Phone,
 } from 'lucide-react';
 import { Language, Currency } from '../types';
 import { TRANSLATIONS } from '../data/translations';
@@ -26,8 +27,8 @@ interface NavbarProps {
   onLanguageChange: (lang: Language) => void;
   currentCurrency: Currency;
   onCurrencyChange: (currency: Currency) => void;
-  activeView: 'residences' | 'map' | 'bookings' | 'admin';
-  onNavigate: (view: 'residences' | 'map' | 'bookings' | 'admin') => void;
+  activeView: 'residences' | 'map' | 'bookings' | 'admin' | 'contact';
+  onNavigate: (view: 'residences' | 'map' | 'bookings' | 'admin' | 'contact') => void;
   onOpenProfile: () => void;
   onOpenNotifications: () => void;
   onOpenAccessibility: () => void;
@@ -115,11 +116,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center shrink-0">
             <button
               onClick={() => onNavigate('residences')}
-              aria-label="HavenStay Residences Homepage"
+              aria-label="Aradads Home Residences Homepage"
               className="group flex items-center gap-2 rounded-lg py-1 focus-visible:outline-2 focus-visible:outline-zinc-900 transition-transform active:scale-95 text-left"
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-950 text-white font-serif font-bold text-lg shadow-sm group-hover:bg-zinc-800 transition-colors">
-                H
+                A
               </div>
               <div className="flex items-baseline gap-1.5">
                 <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-zinc-950 group-hover:text-zinc-800 transition-colors">
@@ -183,53 +184,32 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
               )}
             </button>
+
+            <button
+              onClick={() => onNavigate('contact')}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 transition-all focus-visible:outline-2 focus-visible:outline-zinc-900 cursor-pointer ${
+                activeView === 'contact'
+                  ? 'bg-white font-semibold text-zinc-950 shadow-xs ring-1 ring-black/5'
+                  : 'text-zinc-600 hover:text-zinc-950 hover:bg-white/50'
+              }`}
+            >
+              <Phone className="h-3.5 w-3.5 text-zinc-500" />
+              <span>{t.navContact}</span>
+            </button>
           </nav>
 
           {/* ZONE 3: ACTIONS & UTILITIES (Right - Clean & Uncluttered) */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-
-            {/* Host Portal / Admin Console Button */}
-            {!isAdminAuthenticated ? (
-              <button
-                onClick={onOpenAdminLogin}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-zinc-200/90 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 transition-all focus-visible:outline-2 focus-visible:outline-zinc-900"
-              >
-                <Lock className="h-3.5 w-3.5 text-zinc-500" />
-                <span>Host Portal</span>
-              </button>
-            ) : (
-              <div className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50/90 py-0.5 pl-2.5 pr-1.5 text-xs font-semibold text-emerald-950 shadow-xs">
-                <button
-                  onClick={() => onNavigate('admin')}
-                  className="flex items-center gap-1.5 py-1 text-emerald-900 hover:text-emerald-950"
-                >
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span className="hidden sm:inline">Host Console</span>
-                  <span className="sm:hidden text-[11px]">Host</span>
-                </button>
-                <button
-                  onClick={onAdminLogout}
-                  title="Sign out of Host Console"
-                  aria-label="Sign out of Host Console"
-                  className="rounded-full p-1 text-emerald-700 hover:bg-emerald-100 hover:text-rose-600 transition-colors"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
 
             {/* Language & Currency Quick Switcher Button */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={() => {
                   setPrefModalOpen(!prefModalOpen);
                   setAccountMenuOpen(false);
                 }}
                 aria-label="Language and Currency preferences"
-                className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-zinc-200/90 bg-white px-2.5 sm:px-3 py-1.5 text-xs font-medium text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-zinc-900 transition-all cursor-pointer"
+                className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-zinc-200/90 bg-white px-2 sm:px-3 py-1 sm:py-1.5 text-[11px] sm:text-xs font-medium text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-zinc-900 transition-all cursor-pointer"
               >
                 <Globe className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
                 <span className="font-semibold text-zinc-800 uppercase">{currentLang}</span>
@@ -242,7 +222,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {/* Preferences Modal / Popover */}
               {prefModalOpen && (
-                <div className="fixed inset-x-4 top-20 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 rounded-2xl border border-zinc-200 bg-white p-3.5 shadow-2xl ring-1 ring-black/5 z-50 animate-in fade-in zoom-in-95">
+                <div className="fixed inset-x-3 top-18 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 rounded-2xl border border-zinc-200 bg-white p-3.5 shadow-2xl ring-1 ring-black/5 z-50 animate-in fade-in zoom-in-95">
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-100">
                     <span className="text-xs font-bold text-zinc-900">Regional Settings</span>
                     <button
@@ -387,15 +367,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                 aria-label="Open User Account Settings"
                 className="flex items-center gap-1.5 rounded-full border border-zinc-200/90 bg-white p-1 pl-1.5 pr-2 hover:border-zinc-300 hover:shadow-xs focus-visible:outline-2 focus-visible:outline-zinc-900 transition-all cursor-pointer"
               >
-                <div className="h-6 w-6 rounded-full bg-zinc-900 flex items-center justify-center text-white text-[11px] font-semibold shadow-xs">
-                  RV
+                <div className="relative">
+                  <div className="h-6 w-6 rounded-full bg-zinc-900 flex items-center justify-center text-white text-[11px] font-semibold shadow-xs">
+                    RV
+                  </div>
+                  {isAdminAuthenticated && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 ring-2 ring-white"></span>
+                    </span>
+                  )}
                 </div>
                 <ChevronDown className="h-3.5 w-3.5 text-zinc-400" />
               </button>
 
               {/* Clean, Non-Crowded Account Menu Dropdown */}
               {accountMenuOpen && (
-                <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-zinc-200 bg-white p-2 shadow-2xl ring-1 ring-black/5 z-50 animate-in fade-in zoom-in-95">
+                <div className="fixed inset-x-3 top-18 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-72 rounded-2xl border border-zinc-200 bg-white p-2 shadow-2xl ring-1 ring-black/5 z-50 animate-in fade-in zoom-in-95">
                   {/* User Profile Summary */}
                   <div className="px-3.5 py-3 border-b border-zinc-100 mb-1">
                     <div className="flex items-center justify-between">
@@ -433,6 +420,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span>Accessibility Suite (WCAG 2.1)</span>
                   </button>
 
+                  {/* Concierge & Contact */}
+                  <button
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      onNavigate('contact');
+                    }}
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition-colors"
+                  >
+                    <Phone className="h-4 w-4 text-zinc-500" />
+                    <span>Concierge & Inquiries (Accra)</span>
+                  </button>
+
                   <div className="my-1 border-t border-zinc-100" />
 
                   {/* Simulate Offline Resilience Toggle */}
@@ -461,41 +460,52 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                   <div className="my-1 border-t border-zinc-100" />
 
-                  {/* Host Section */}
+                  {/* Host Management Console - In Account Menu */}
                   {!isAdminAuthenticated ? (
                     <button
                       onClick={() => {
                         setAccountMenuOpen(false);
                         onOpenAdminLogin();
                       }}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition-colors"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition-colors cursor-pointer"
                     >
                       <Lock className="h-4 w-4 text-zinc-500" />
-                      <span>Host Portal Login</span>
+                      <div className="flex-1">
+                        <div>Host & Admin Portal</div>
+                        <div className="text-[10px] text-zinc-400 font-normal">Manage listings, rates & bookings</div>
+                      </div>
                     </button>
                   ) : (
-                    <>
+                    <div className="space-y-1 rounded-xl bg-emerald-50/70 p-1.5 border border-emerald-200/60">
                       <button
                         onClick={() => {
                           setAccountMenuOpen(false);
                           onNavigate('admin');
                         }}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-semibold text-emerald-950 bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                        className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs font-semibold text-emerald-950 hover:bg-emerald-100/70 transition-colors cursor-pointer"
                       >
-                        <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                        <span>Open Host Console</span>
+                        <div className="flex items-center gap-2">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                          </span>
+                          <span>Open Host Console</span>
+                        </div>
+                        <span className="text-[10px] text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-mono">
+                          Active
+                        </span>
                       </button>
                       <button
                         onClick={() => {
                           setAccountMenuOpen(false);
                           onAdminLogout();
                         }}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors"
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[11px] font-medium text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                       >
-                        <LogOut className="h-4 w-4 text-rose-500" />
+                        <LogOut className="h-3.5 w-3.5 text-rose-500" />
                         <span>Sign Out of Admin</span>
                       </button>
-                    </>
+                    </div>
                   )}
                 </div>
               )}

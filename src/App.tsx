@@ -35,6 +35,7 @@ import { AccessibilityToolbar } from './components/AccessibilityToolbar';
 import { OfflineBanner } from './components/OfflineBanner';
 import { AdvancedFiltersDrawer } from './components/AdvancedFiltersDrawer';
 import { VerifiedTestimonials } from './components/VerifiedTestimonials';
+import { ContactPage } from './components/ContactPage';
 import { filterApartments } from './utils/filterHelpers';
 import {
   Calendar,
@@ -58,7 +59,7 @@ export default function App() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   // Navigation & View
-  const [activeView, setActiveView] = useState<'residences' | 'map' | 'bookings' | 'admin'>('residences');
+  const [activeView, setActiveView] = useState<'residences' | 'map' | 'bookings' | 'admin' | 'contact'>('residences');
   const [currentLang, setCurrentLang] = useState<Language>(profile.language || 'en');
   const [currentCurrency, setCurrentCurrency] = useState<Currency>(profile.preferredCurrency || 'USD');
 
@@ -226,7 +227,7 @@ export default function App() {
   const activeBookingsCount = bookings.filter((b) => b.status === 'confirmed').length;
 
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 selection:bg-amber-100 selection:text-amber-900 pb-16 md:pb-0">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-zinc-50 text-zinc-900 selection:bg-amber-100 selection:text-amber-900 pb-16 md:pb-0">
       {/* Offline Status & Sync Resilience Alert */}
       <OfflineBanner
         simulatedOffline={simulatedOffline}
@@ -648,6 +649,16 @@ export default function App() {
             </div>
           )
         )}
+
+        {/* VIEW 5: CONCIERGE & CONTACT PAGE */}
+        {activeView === 'contact' && (
+          <ContactPage
+            apartments={apartments}
+            onSelectApartment={(apt) => {
+              setDetailModalApartment(apt);
+            }}
+          />
+        )}
       </main>
 
       {/* Global Interactive Modals */}
@@ -775,23 +786,61 @@ export default function App() {
 
       {/* Quiet Footer */}
       <footer className="border-t border-zinc-200 bg-white py-12 text-zinc-500 text-xs">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="font-serif font-bold text-zinc-900 text-base">
-            HavenStay Residences
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-zinc-100 pb-8">
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-950 text-white font-serif font-bold text-sm">
+                  A
+                </div>
+                <span className="font-serif font-bold text-zinc-950 text-lg">
+                  Aradads Home Residences
+                </span>
+                <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-900 border border-amber-200/60">
+                  Ghana
+                </span>
+              </div>
+              <p className="text-zinc-500 text-xs mt-1.5 max-w-md">
+                Curated architectural apartments, penthouses, and private villas in Accra, Cantonments, Airport Residential, East Legon, Labone, and Aburi Hills.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="flex flex-wrap items-center gap-5 text-zinc-600 font-medium">
+              <button onClick={() => setActiveView('residences')} className="hover:text-zinc-950 transition-colors">
+                Residences
+              </button>
+              <button onClick={() => setActiveView('map')} className="hover:text-zinc-950 transition-colors">
+                Map
+              </button>
+              <button onClick={() => setActiveView('contact')} className="hover:text-zinc-950 font-semibold text-amber-900 transition-colors">
+                Concierge & Contact
+              </button>
+              <button onClick={() => setActiveView('admin')} className="hover:text-zinc-950 transition-colors">
+                Host Portal
+              </button>
+              <button onClick={() => setIsProfileModalOpen(true)} className="hover:text-zinc-950 transition-colors">
+                Privacy & GDPR
+              </button>
+              <button onClick={() => setIsAccessibilityOpen(true)} className="hover:text-zinc-950 transition-colors">
+                WCAG 2.1
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-6 text-zinc-500">
-            <button onClick={() => setIsProfileModalOpen(true)} className="hover:text-zinc-900">
-              Privacy & GDPR
-            </button>
-            <button onClick={() => setIsAccessibilityOpen(true)} className="hover:text-zinc-900">
-              WCAG 2.1 Statement
-            </button>
-            <button onClick={() => setActiveView('admin')} className="hover:text-zinc-900">
-              Host Portal
-            </button>
-          </div>
-          <div>
-            © 2026 HavenStay International Inc. All rights reserved.
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-zinc-400 text-[11px]">
+            <div>
+              © 2026 Aradads Home International Ltd. All rights reserved.
+            </div>
+
+            {/* POWERED BY JAMS TECH BADGE */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50/80 px-3.5 py-1 text-zinc-700 shadow-2xs hover:border-zinc-300 transition-colors">
+              <span className="text-[10px] font-medium text-zinc-500">Engineered &</span>
+              <span className="font-semibold text-zinc-900 tracking-tight flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500 inline-block animate-pulse"></span>
+                Powered by JAMS TECH
+              </span>
+            </div>
           </div>
         </div>
       </footer>

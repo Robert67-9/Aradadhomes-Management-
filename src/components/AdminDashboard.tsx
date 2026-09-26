@@ -18,12 +18,18 @@ import {
   Bed,
   Bath,
   Maximize2,
-  Sparkles
+  Sparkles,
+  Pencil,
+  Edit3,
+  LayoutList,
+  Table as TableIcon,
+  MapPin
 } from 'lucide-react';
 import { Apartment, Booking, Currency, Language } from '../types';
-import { formatPrice, formatPriceExact, saveApartments, saveBooking } from '../services/storage';
+import { CURRENCY_RATES, formatPrice, formatPriceExact, saveApartments, saveBooking } from '../services/storage';
 import { TRANSLATIONS } from '../data/translations';
 import { AddRoomModal } from './AddRoomModal';
+import { EditResidenceModal } from './EditResidenceModal';
 
 interface AdminDashboardProps {
   apartments: Apartment[];
@@ -55,6 +61,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [bookingFilterStatus, setBookingFilterStatus] = useState<string>('all');
   const [guestSearch, setGuestSearch] = useState('');
   const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
+  const [editingApartment, setEditingApartment] = useState<Apartment | null>(null);
+  const [inventoryViewMode, setInventoryViewMode] = useState<'cards' | 'table'>('cards');
 
   // Selected Apartment
   const currentApartment = apartments.find((a) => a.id === selectedApartmentId) || apartments[0];
@@ -77,6 +85,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setSelectedApartmentId(newApt.id);
     setBlockSuccessNotice(`New residence "${newApt.title}" in ${newApt.city}, ${newApt.country} added successfully!`);
     setTimeout(() => setBlockSuccessNotice(null), 5000);
+  };
+
+  // Handler: Save Edited Apartment
+  const handleSaveEditedApartment = (updatedApartment: Apartment) => {
+    const updated = apartments.map((a) => (a.id === updatedApartment.id ? updatedApartment : a));
+    saveApartments(updated);
+    onUpdateApartments(updated);
+    if (selectedApartmentId === updatedApartment.id) {
+      // Re-trigger selection to ensure fresh references
+      setSelectedApartmentId(updatedApartment.id);
+    }
+    setBlockSuccessNotice(`Residence "${updatedApartment.title}" has been successfully updated.`);
+    setTimeout(() => setBlockSuccessNotice(null), 4500);
   };
 
   // Handler: Delete Apartment
@@ -169,7 +190,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-8">
+    <div className="mx-auto max-w-7xl w-full px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200 pb-6">
         <div>
@@ -218,7 +239,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="rounded-xl border border-zinc-200/80 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between text-xs text-zinc-500 font-medium">
             <span>{t.adminRevenue}</span>
-            <DollarSign className="h-4 w-4 text-zinc-400" />
+            <span className="font-mono text-xs font-bold text-zinc-600 bg-zinc-100 rounded px-1.5 py-0.5 border border-zinc-200/60">
+              {CURRENCY_RATES[currentCurrency]?.symbol.trim() || currentCurrency}
+            </span>
           </div>
           <div className="mt-2 font-serif text-2xl font-bold text-zinc-950 tabular-nums">
             {formatPrice(totalRevenue, currentCurrency)}
@@ -289,118 +312,263 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </p>
           </div>
 
-          <button
-            onClick={() => setIsAddRoomOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 transition-colors shadow-sm self-start sm:self-auto"
-          >
-            <Plus className="h-4 w-4" />
-            <span>+ Add New Room / Residence</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+            {/* View Mode Switcher: Card List (Fitted) vs Compact Table */}
+            <div className="flex items-center rounded-lg bg-zinc-100 p-0.5 border border-zinc-200 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setInventoryViewMode('cards')}
+                className={`flex items-center gap-1 rounded-md px-2.5 py-1 transition-all cursor-pointer ${
+                  inventoryViewMode === 'cards'
+                    ? 'bg-white text-zinc-950 font-bold shadow-xs'
+                    : 'text-zinc-600 hover:text-zinc-950'
+                }`}
+                title="Full-width screen-fitted card view (no horizontal scroll)"
+              >
+                <LayoutList className="h-3.5 w-3.5" />
+                <span>Card View</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setInventoryViewMode('table')}
+                className={`flex items-center gap-1 rounded-md px-2.5 py-1 transition-all cursor-pointer ${
+                  inventoryViewMode === 'table'
+                    ? 'bg-white text-zinc-950 font-bold shadow-xs'
+                    : 'text-zinc-600 hover:text-zinc-950'
+                }`}
+                title="Fitted table view"
+              >
+                <TableIcon className="h-3.5 w-3.5" />
+                <span>Table</span>
+              </button>
+            </div>
+
+            <button
+              onClick={() => setIsAddRoomOpen(true)}
+              className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-zinc-800 transition-colors shadow-sm self-start sm:self-auto cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>+ Add Residence</span>
+            </button>
+          </div>
         </div>
 
-        {/* Room Inventory Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-zinc-700">
-            <thead className="border-b border-zinc-100 bg-zinc-50 font-semibold text-zinc-500 uppercase tracking-wider text-[10px]">
-              <tr>
-                <th className="py-3 px-4">Property</th>
-                <th className="py-3 px-4">Location</th>
-                <th className="py-3 px-4">Nightly Rate</th>
-                <th className="py-3 px-4">Specs</th>
-                <th className="py-3 px-4">Rating</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100">
-              {apartments.map((apt) => (
-                <tr
-                  key={apt.id}
-                  className={`hover:bg-zinc-50/80 transition-colors ${
-                    selectedApartmentId === apt.id ? 'bg-amber-50/40' : ''
-                  }`}
-                >
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={apt.images[0]}
-                        alt={apt.title}
-                        className="h-12 w-14 rounded-lg object-cover border border-zinc-200 shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <div className="font-serif font-bold text-zinc-950 truncate max-w-[200px]">
-                          {apt.title}
-                        </div>
-                        <div className="text-[11px] text-zinc-400 truncate max-w-[200px]">
-                          {apt.subtitle}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4 font-medium text-zinc-900">
-                    <div>{apt.neighborhood || apt.city}</div>
-                    <div className="text-[11px] text-zinc-400">
-                      {apt.city}, {apt.country} {apt.country.toLowerCase().includes('ghana') ? '🇬🇭' : ''}
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4 font-semibold text-zinc-950 tabular-nums">
-                    <div>{formatPrice(apt.pricePerNight, currentCurrency)}</div>
-                    <div className="text-[10px] text-zinc-400">per night</div>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center gap-2 text-zinc-600">
-                      <span>{apt.bedrooms} bed</span>
-                      <span>·</span>
-                      <span>{apt.bathrooms} bath</span>
-                      <span>·</span>
-                      <span>{apt.maxGuests} guests</span>
-                    </div>
-                    <div className="text-[11px] text-zinc-400">{apt.sqft} sqft</div>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <span className="font-semibold text-zinc-900">★ {apt.rating.toFixed(2)}</span>
-                    <span className="text-[11px] text-zinc-400 block">({apt.reviewCount} reviews)</span>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <div className="flex flex-col gap-1 items-start">
-                      <span className="rounded bg-emerald-50 px-2 py-0.5 font-semibold text-[10px] text-emerald-700 border border-emerald-200">
+        {/* MODE 1: SCREEN-FITTED CARD VIEW (No horizontal scrolling, 100% width) */}
+        {inventoryViewMode === 'cards' ? (
+          <div className="space-y-3">
+            {apartments.map((apt) => (
+              <div
+                key={apt.id}
+                className={`rounded-xl border p-3.5 sm:p-4 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 ${
+                  selectedApartmentId === apt.id
+                    ? 'border-amber-400 bg-amber-50/30 ring-1 ring-amber-400/20'
+                    : 'border-zinc-200/80 bg-white hover:border-zinc-300'
+                }`}
+              >
+                {/* Left: Thumbnail & Main info */}
+                <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                  <div
+                    onClick={() => setEditingApartment(apt)}
+                    className="relative cursor-pointer group shrink-0"
+                    title="Click to edit residence & media"
+                  >
+                    <img
+                      src={apt.images[0]}
+                      alt={apt.title}
+                      className="h-16 w-20 sm:h-20 sm:w-24 rounded-lg object-cover border border-zinc-200 group-hover:opacity-85 transition-opacity"
+                    />
+                    <span className="absolute inset-0 bg-black/30 rounded-lg opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <Pencil className="h-3.5 w-3.5 text-white" />
+                    </span>
+                    {apt.featured && (
+                      <span className="absolute top-1 left-1 rounded bg-amber-500 text-white font-bold text-[9px] px-1 py-0.2 shadow-2xs">
+                        ★
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setEditingApartment(apt)}
+                        className="font-serif font-bold text-zinc-950 text-sm sm:text-base text-left hover:text-amber-800 transition-colors flex items-center gap-1 group cursor-pointer truncate max-w-full"
+                        title="Click to edit residence"
+                      >
+                        <span className="truncate">{apt.title}</span>
+                        <Pencil className="h-3 w-3 text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                      </button>
+                      <span className="rounded bg-emerald-50 px-2 py-0.5 font-semibold text-[10px] text-emerald-700 border border-emerald-200 shrink-0">
                         Live / Available
                       </span>
                       {apt.featured && (
-                        <span className="rounded bg-amber-50 px-2 py-0.5 font-semibold text-[10px] text-amber-800 border border-amber-200">
+                        <span className="rounded bg-amber-50 px-2 py-0.5 font-semibold text-[10px] text-amber-800 border border-amber-200 shrink-0">
                           Featured
                         </span>
                       )}
                     </div>
-                  </td>
-                  <td className="py-3.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => setSelectedApartmentId(apt.id)}
-                        className={`rounded border px-2 py-1 text-[11px] font-medium transition-colors ${
-                          selectedApartmentId === apt.id
-                            ? 'bg-zinc-900 text-white border-zinc-900'
-                            : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100'
-                        }`}
-                        title="Manage calendar and blocked dates for this room"
-                      >
-                        {selectedApartmentId === apt.id ? 'Selected' : 'Calendar'}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteApartment(apt.id, apt.title)}
-                        className="rounded border border-zinc-200 p-1 text-zinc-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                        title="Delete this room"
-                        aria-label={`Delete ${apt.title}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-zinc-500">
+                      <span className="font-medium text-zinc-700 flex items-center gap-1">
+                        <MapPin className="h-3 w-3 text-zinc-400" />
+                        {apt.neighborhood || apt.city}, {apt.country} {apt.country.toLowerCase().includes('ghana') ? '🇬🇭' : ''}
+                      </span>
+                      <span>·</span>
+                      <span className="text-zinc-600">
+                        {apt.bedrooms} bed · {apt.bathrooms} bath · {apt.maxGuests} guests · {apt.sqft} sqft
+                      </span>
+                      <span>·</span>
+                      <span className="font-semibold text-zinc-900">★ {apt.rating.toFixed(2)} ({apt.reviewCount})</span>
                     </div>
-                  </td>
+
+                    <div className="text-[11px] text-zinc-400 line-clamp-1">
+                      {apt.subtitle}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Pricing & Action Buttons */}
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between md:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-100">
+                  <div className="text-left sm:text-right">
+                    <div className="text-sm sm:text-base font-bold text-zinc-950 tabular-nums">
+                      {formatPrice(apt.pricePerNight, currentCurrency)}
+                    </div>
+                    <div className="text-[10px] text-zinc-400">per night</div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setEditingApartment(apt)}
+                      className="flex items-center gap-1 rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-800 hover:border-zinc-950 hover:bg-zinc-950 hover:text-white transition-all cursor-pointer shadow-2xs"
+                      title="Edit residence details, nightly rates, layout specs, photos, and video"
+                    >
+                      <Pencil className="h-3.5 w-3.5 text-amber-600" />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => setSelectedApartmentId(apt.id)}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                        selectedApartmentId === apt.id
+                          ? 'bg-zinc-900 text-white border-zinc-900'
+                          : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100'
+                      }`}
+                      title="Manage calendar and blocked dates for this room"
+                    >
+                      {selectedApartmentId === apt.id ? 'Selected' : 'Calendar'}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteApartment(apt.id, apt.title)}
+                      className="rounded-lg border border-zinc-200 p-1.5 text-zinc-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                      title="Delete this room"
+                      aria-label={`Delete ${apt.title}`}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* MODE 2: FITTED COMPACT TABLE (Responsive columns, fits 100% without horizontal scroll) */
+          <div className="w-full overflow-hidden rounded-xl border border-zinc-200/80 bg-white">
+            <table className="w-full text-left text-xs text-zinc-700">
+              <thead className="border-b border-zinc-100 bg-zinc-50 font-semibold text-zinc-500 uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3 px-3 sm:px-4">Property</th>
+                  <th className="py-3 px-3 hidden sm:table-cell">Location</th>
+                  <th className="py-3 px-3">Nightly Rate</th>
+                  <th className="py-3 px-3 hidden md:table-cell">Status</th>
+                  <th className="py-3 px-3 sm:px-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {apartments.map((apt) => (
+                  <tr
+                    key={apt.id}
+                    className={`hover:bg-zinc-50/80 transition-colors ${
+                      selectedApartmentId === apt.id ? 'bg-amber-50/40' : ''
+                    }`}
+                  >
+                    <td className="py-3 px-3 sm:px-4">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          onClick={() => setEditingApartment(apt)}
+                          className="relative cursor-pointer group shrink-0"
+                          title="Click to edit"
+                        >
+                          <img
+                            src={apt.images[0]}
+                            alt={apt.title}
+                            className="h-10 w-12 rounded object-cover border border-zinc-200 group-hover:opacity-85"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <button
+                            type="button"
+                            onClick={() => setEditingApartment(apt)}
+                            className="font-serif font-bold text-zinc-950 truncate max-w-[170px] sm:max-w-xs text-left hover:text-amber-700 transition-colors block cursor-pointer"
+                          >
+                            {apt.title}
+                          </button>
+                          <div className="text-[10px] text-zinc-500 truncate sm:hidden">
+                            {apt.neighborhood || apt.city} · ★ {apt.rating.toFixed(2)}
+                          </div>
+                          <div className="text-[10px] text-zinc-400 hidden sm:block truncate">
+                            {apt.bedrooms} bed · {apt.bathrooms} bath · {apt.maxGuests} guests
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3 font-medium text-zinc-900 hidden sm:table-cell">
+                      <div>{apt.neighborhood || apt.city}</div>
+                      <div className="text-[10px] text-zinc-400">{apt.country}</div>
+                    </td>
+                    <td className="py-3 px-3 font-semibold text-zinc-950 tabular-nums">
+                      <div>{formatPrice(apt.pricePerNight, currentCurrency)}</div>
+                      <div className="text-[9px] text-zinc-400">per night</div>
+                    </td>
+                    <td className="py-3 px-3 hidden md:table-cell">
+                      <span className="rounded bg-emerald-50 px-2 py-0.5 font-semibold text-[10px] text-emerald-700 border border-emerald-200">
+                        Live
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 sm:px-4 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setEditingApartment(apt)}
+                          className="rounded border border-zinc-300 bg-white px-2 py-1 text-[11px] font-semibold text-zinc-800 hover:border-zinc-950 hover:bg-zinc-950 hover:text-white transition-all cursor-pointer shadow-2xs"
+                          title="Edit"
+                        >
+                          <Pencil className="h-3 w-3 text-amber-600 inline mr-0.5" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          onClick={() => setSelectedApartmentId(apt.id)}
+                          className={`rounded border px-2 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
+                            selectedApartmentId === apt.id
+                              ? 'bg-zinc-900 text-white border-zinc-900'
+                              : 'border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100'
+                          }`}
+                          title="Calendar"
+                        >
+                          {selectedApartmentId === apt.id ? 'Selected' : 'Calendar'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteApartment(apt.id, apt.title)}
+                          className="rounded border border-zinc-200 p-1 text-zinc-400 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 transition-colors cursor-pointer"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Real-time Calendar Date Blocker & Surge Engine */}
@@ -579,71 +747,132 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
 
-        {/* Table / Mobile Cards */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-zinc-700">
-            <thead className="border-b border-zinc-100 bg-zinc-50 font-semibold text-zinc-500 uppercase tracking-wider text-[10px]">
-              <tr>
-                <th className="py-3 px-4">Ref #</th>
-                <th className="py-3 px-4">Guest</th>
-                <th className="py-3 px-4">Residence</th>
-                <th className="py-3 px-4">Dates</th>
-                <th className="py-3 px-4">Total</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100">
-              {filteredBookings.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-8 text-center text-zinc-400">
-                    No reservations matching filter.
-                  </td>
-                </tr>
-              ) : (
-                filteredBookings.map((b) => (
-                  <tr key={b.id} className="hover:bg-zinc-50/80 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-semibold text-zinc-900">{b.id}</td>
-                    <td className="py-3.5 px-4">
-                      <div className="font-semibold text-zinc-900">{b.guestName}</div>
-                      <div className="text-[11px] text-zinc-400">{b.guestEmail}</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-serif font-medium text-zinc-900 max-w-[180px] truncate">
-                      {b.apartmentTitle}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <div>{b.checkInDate} → {b.checkOutDate}</div>
-                      <div className="text-[11px] text-zinc-400">{b.totalNights} nights</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-semibold text-zinc-900 tabular-nums">
-                      {formatPriceExact(b.totalAmount, currentCurrency)}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span
-                        className={`rounded px-2 py-0.5 font-semibold text-[10px] ${
-                          b.status === 'confirmed'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : b.status === 'completed'
-                            ? 'bg-blue-50 text-blue-700'
-                            : 'bg-rose-50 text-rose-700'
-                        }`}
-                      >
-                        {b.status.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
+        {/* Table on Desktop / Responsive Cards on Mobile */}
+        <div className="w-full overflow-hidden">
+          {/* Mobile / Tablet Cards */}
+          <div className="md:hidden space-y-3">
+            {filteredBookings.length === 0 ? (
+              <div className="py-8 text-center text-zinc-400 text-xs">
+                No reservations matching filter.
+              </div>
+            ) : (
+              filteredBookings.map((b) => (
+                <div
+                  key={b.id}
+                  className="rounded-xl border border-zinc-200/80 bg-white p-3.5 space-y-2 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-bold text-zinc-900">{b.id}</span>
+                    <span
+                      className={`rounded px-2 py-0.5 font-semibold text-[10px] ${
+                        b.status === 'confirmed'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : b.status === 'completed'
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'bg-rose-50 text-rose-700'
+                      }`}
+                    >
+                      {b.status.toUpperCase()}
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="font-semibold text-zinc-950">{b.guestName}</div>
+                    <div className="text-[11px] text-zinc-400">{b.guestEmail}</div>
+                  </div>
+
+                  <div className="text-zinc-700 font-serif font-medium">
+                    {b.apartmentTitle}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
+                    <div>
+                      <div className="text-zinc-600 text-[11px]">{b.checkInDate} → {b.checkOutDate}</div>
+                      <div className="text-[10px] text-zinc-400">{b.totalNights} nights</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-zinc-950 tabular-nums">
+                        {formatPriceExact(b.totalAmount, currentCurrency)}
+                      </div>
                       <button
                         onClick={() => onOpenBookingEmail(b)}
-                        className="rounded border border-zinc-200 px-2.5 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-100"
+                        className="mt-1 rounded border border-zinc-200 px-2.5 py-0.5 text-[10px] font-semibold text-zinc-700 hover:bg-zinc-100"
                       >
                         Voucher
                       </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Desktop Fitted Table */}
+          <div className="hidden md:block rounded-xl border border-zinc-200/80 bg-white overflow-hidden">
+            <table className="w-full text-left text-xs text-zinc-700">
+              <thead className="border-b border-zinc-100 bg-zinc-50 font-semibold text-zinc-500 uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3 px-3 sm:px-4">Ref #</th>
+                  <th className="py-3 px-3 sm:px-4">Guest</th>
+                  <th className="py-3 px-3 sm:px-4">Residence</th>
+                  <th className="py-3 px-3">Dates</th>
+                  <th className="py-3 px-3 font-right">Total</th>
+                  <th className="py-3 px-3">Status</th>
+                  <th className="py-3 px-3 sm:px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {filteredBookings.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-zinc-400">
+                      No reservations matching filter.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredBookings.map((b) => (
+                    <tr key={b.id} className="hover:bg-zinc-50/80 transition-colors">
+                      <td className="py-3 px-3 sm:px-4 font-mono font-semibold text-zinc-900">{b.id}</td>
+                      <td className="py-3 px-3 sm:px-4">
+                        <div className="font-semibold text-zinc-900">{b.guestName}</div>
+                        <div className="text-[10px] text-zinc-400">{b.guestEmail}</div>
+                      </td>
+                      <td className="py-3 px-3 sm:px-4 font-serif font-medium text-zinc-900 max-w-[160px] truncate">
+                        {b.apartmentTitle}
+                      </td>
+                      <td className="py-3 px-3">
+                        <div>{b.checkInDate} → {b.checkOutDate}</div>
+                        <div className="text-[10px] text-zinc-400">{b.totalNights} nights</div>
+                      </td>
+                      <td className="py-3 px-3 font-semibold text-zinc-900 tabular-nums">
+                        {formatPriceExact(b.totalAmount, currentCurrency)}
+                      </td>
+                      <td className="py-3 px-3">
+                        <span
+                          className={`rounded px-2 py-0.5 font-semibold text-[10px] ${
+                            b.status === 'confirmed'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : b.status === 'completed'
+                              ? 'bg-blue-50 text-blue-700'
+                              : 'bg-rose-50 text-rose-700'
+                          }`}
+                        >
+                          {b.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 sm:px-4 text-right">
+                        <button
+                          onClick={() => onOpenBookingEmail(b)}
+                          className="rounded border border-zinc-200 px-2.5 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-100 cursor-pointer"
+                        >
+                          Voucher
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -654,6 +883,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           currentLang={currentLang}
           onClose={() => setIsAddRoomOpen(false)}
           onAddApartment={handleAddApartment}
+        />
+      )}
+
+      {/* Edit Residence & Room Inventory Modal */}
+      {editingApartment && (
+        <EditResidenceModal
+          apartment={editingApartment}
+          currentCurrency={currentCurrency}
+          isOpen={true}
+          onClose={() => setEditingApartment(null)}
+          onSave={handleSaveEditedApartment}
         />
       )}
     </div>

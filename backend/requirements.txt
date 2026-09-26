@@ -1,0 +1,9 @@
+# Aradads Home Luxury Residences - Python Backend Dependencies
+fastapi>=0.115.0
+uvicorn[standard]>=0.31.0
+pydantic>=2.9.2
+python-multipart>=0.0.12
+requests>=2.32.3
+gunicorn>=23.0.0
+supabase>=2.8.0
+python-dotenv>=1.0.1

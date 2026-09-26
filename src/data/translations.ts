@@ -7,6 +7,7 @@ export interface TranslationDict {
   navMap: string;
   navBookings: string;
   navHostPortal: string;
+  navContact: string;
   navAccessibility: string;
   heroHeadline: string;
   heroSubheadline: string;
@@ -92,17 +93,18 @@ export interface TranslationDict {
 
 export const TRANSLATIONS: Record<Language, TranslationDict> = {
   en: {
-    brandName: 'HavenStay',
+    brandName: 'Aradads Home',
     tagline: 'Architectural residences & luxury apartment rentals',
     navExplore: 'Residences',
     navMap: 'Interactive Map',
     navBookings: 'My Bookings',
+    navContact: 'Contact',
     navHostPortal: 'Host Dashboard',
     navAccessibility: 'Accessibility',
-    heroHeadline: 'Curated architectural apartments for refined living',
-    heroSubheadline: 'Handpicked penthouses, historic lofts, and garden sanctuaries with real-time verified availability and end-to-end encrypted checkout.',
-    searchDestination: 'Location',
-    searchDestinationPlaceholder: 'City or neighborhood (e.g. Mayfair, Södermalm, Paris...)',
+    heroHeadline: 'Curated luxury residences for refined living in Ghana',
+    heroSubheadline: 'Handpicked villas, executive penthouses, and private garden retreats with 24/7 solar backup power, verified availability, and encrypted checkout.',
+    searchDestination: 'Location in Ghana',
+    searchDestinationPlaceholder: 'Neighborhood or area (e.g. Cantonments, Airport Residential, East Legon, Labone...)',
     searchCheckIn: 'Check-in',
     searchCheckOut: 'Check-out',
     searchGuests: 'Guests',
@@ -181,11 +183,12 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     freeCancellation: 'Free cancellation up to 48h before arrival'
   },
   es: {
-    brandName: 'HavenStay',
+    brandName: 'Aradads Home',
     tagline: 'Residencias arquitectónicas y apartamentos de lujo',
     navExplore: 'Residencias',
     navMap: 'Mapa Interactivo',
     navBookings: 'Mis Reservas',
+    navContact: 'Contacto',
     navHostPortal: 'Panel de Anfitrión',
     navAccessibility: 'Accesibilidad',
     heroHeadline: 'Apartamentos arquitectónicos para una estancia refinada',
@@ -270,11 +273,12 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     freeCancellation: 'Cancelación gratuita hasta 48h antes'
   },
   fr: {
-    brandName: 'HavenStay',
+    brandName: 'Aradads Home',
     tagline: 'Résidences d’architecte et appartements de prestige',
     navExplore: 'Résidences',
     navMap: 'Carte Interactive',
     navBookings: 'Mes Réservations',
+    navContact: 'Contact',
     navHostPortal: 'Portail Hôte',
     navAccessibility: 'Accessibilité',
     heroHeadline: 'Des appartements d’architecte d’exception pour un séjour raffiné',
@@ -359,11 +363,12 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     freeCancellation: 'Annulation gratuite jusqu’à 48h avant l’arrivée'
   },
   de: {
-    brandName: 'HavenStay',
+    brandName: 'Aradads Home',
     tagline: 'Architektonische Residenzen & Luxus-Apartments',
     navExplore: 'Residenzen',
     navMap: 'Interaktive Karte',
     navBookings: 'Meine Buchungen',
+    navContact: 'Kontakt',
     navHostPortal: 'Host Dashboard',
     navAccessibility: 'Barrierefreiheit',
     heroHeadline: 'Architektonische Meisterwerke für anspruchsvolles Wohnen',
@@ -448,11 +453,12 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     freeCancellation: 'Kostenlose Stornierung bis 48 Std. vor Anreise'
   },
   ja: {
-    brandName: 'HavenStay',
+    brandName: 'Aradads Home',
     tagline: '最高峰の建築美と洗練されたアパートメント滞在',
     navExplore: 'レジデンス一覧',
     navMap: 'インタラクティブマップ',
     navBookings: '予約管理',
+    navContact: 'お問い合わせ',
     navHostPortal: 'ホスト管理',
     navAccessibility: 'アクセシビリティ',
     heroHeadline: '洗練された美学と静謐に満ちた建築レジデンス',
@@ -537,11 +543,12 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     freeCancellation: '到着の48時間前まで無料キャンセル可能'
   },
   ar: {
-    brandName: 'HavenStay',
+    brandName: 'Aradads Home',
     tagline: 'إقامات معمارية فاخرة وشقق فندقية متميزة',
     navExplore: 'الشقق الفاخرة',
     navMap: 'الخريطة التفاعلية',
     navBookings: 'حجوزاتي',
+    navContact: 'اتصل بنا',
     navHostPortal: 'لوحة تحكم المضيف',
     navAccessibility: 'سهولة الوصول',
     heroHeadline: 'شقق معمارية استثنائية لعيش راقٍ وتجارب لا تُنسى',

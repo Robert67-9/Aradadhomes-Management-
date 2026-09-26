@@ -102,11 +102,11 @@ export const BookingEmailModal: React.FC<BookingEmailModalProps> = ({
 
         {/* Email Envelope Container */}
         <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 p-5 sm:p-6 text-zinc-800 print:border-none print:p-0">
-          {/* Header with HavenStay logo */}
+          {/* Header with Aradads Home logo */}
           <div className="flex items-center justify-between border-b border-zinc-200 pb-4">
             <div>
               <span className="font-serif text-2xl font-bold tracking-tight text-zinc-950">
-                HavenStay
+                Aradads Home
               </span>
               <div className="text-[11px] text-zinc-500">Official Guest Reservation Voucher</div>
             </div>
@@ -200,7 +200,7 @@ export const BookingEmailModal: React.FC<BookingEmailModalProps> = ({
 
           {/* Footer note */}
           <div className="mt-5 text-center text-[11px] text-zinc-400">
-            HavenStay Luxury Residences Ltd · Encrypted PCI-DSS Level 1 · 24/7 Global Concierge
+            Aradads Home Luxury Residences Ltd · Encrypted PCI-DSS Level 1 · 24/7 Global Concierge
           </div>
         </div>
       </div>
